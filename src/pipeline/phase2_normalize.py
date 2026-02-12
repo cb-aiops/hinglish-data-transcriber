@@ -4,10 +4,10 @@ from src.utils.csv_helper import read_csv, write_csv
 from src.config import config
 import os
 
-def run_phase2(input_csv, output_csv):
+def run_phase2(input_csv, output_csv, limit=None):
     """
     Phase 2: LLM Script Normalization
-    Converts raw transcripts into Roman Hinglish using Groq API.
+    Converts raw transcripts into mixed-script format using Groq API.
     """
     print(f"Running Phase 2: Normalizing transcripts via Groq ({config.GROQ_MODEL})...")
     
@@ -16,6 +16,9 @@ def run_phase2(input_csv, output_csv):
         
     client = Groq(api_key=config.GROQ_API_KEY)
     df = read_csv(input_csv)
+    if limit:
+        df = df.head(limit)
+        print(f"Limiting to first {limit} rows.")
     
     system_prompt = (
         "You are a linguistic expert specializing in Hinglish. "

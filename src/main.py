@@ -11,10 +11,14 @@ def main():
     # Full Pipeline
     full_pipeline_parser = subparsers.add_parser("full-pipeline", help="Run the full pipeline (Phase 0-5)")
     full_pipeline_parser.add_argument("--version", type=str, required=True, help="Dataset version (e.g., v1)")
+    full_pipeline_parser.add_argument("--mode", type=str, choices=["local", "hf"], default="local", help="Data source mode")
+    full_pipeline_parser.add_argument("--limit", type=int, default=None, help="Limit number of files to process")
 
     # Run Phase
     run_phase_parser = subparsers.add_parser("run-phase", help="Run a specific phase")
     run_phase_parser.add_argument("phase", type=int, choices=range(6), help="Phase number (0-5)")
+    run_phase_parser.add_argument("--mode", type=str, choices=["local", "hf"], default="local", help="Data source mode")
+    run_phase_parser.add_argument("--limit", type=int, default=None, help="Limit number of files to process")
 
     # List Datasets
     subparsers.add_parser("list-datasets", help="List generated datasets")
@@ -27,17 +31,15 @@ def main():
         
         # Phase 0
         raw_metadata = os.path.join(config.PROCESSED_DATA_DIR, "metadata_raw.csv")
-        phase0_prep.run_phase0(config.RAW_DATA_DIR, raw_metadata)
+        phase0_prep.run_phase0(raw_metadata, mode=args.mode, limit=args.limit)
         
         # Phase 1
         raw_transcripts = os.path.join(config.PROCESSED_DATA_DIR, "raw_transcripts.csv")
-        phase1_transcribe.run_phase1(raw_metadata, raw_transcripts)
+        phase1_transcribe.run_phase1(raw_metadata, raw_transcripts, limit=args.limit)
         
         # Phase 2
         normalized_text = os.path.join(config.PROCESSED_DATA_DIR, "normalized.csv")
-        # To merge results, we might need a more sophisticated merge, but for now:
-        # We'll rely on the CSVs being aligned or merging them
-        phase2_normalize.run_phase2(raw_transcripts, normalized_text)
+        phase2_normalize.run_phase2(raw_transcripts, normalized_text, limit=args.limit)
         
         # Phase 3
         # Pre-merge normalized text with raw metadata for Lexicon phase
@@ -67,11 +69,11 @@ def main():
         lexicon_path = os.path.join(config.LEXICON_DIR, "lexicon_v1.csv")
 
         if args.phase == 0:
-            phase0_prep.run_phase0(config.RAW_DATA_DIR, raw_metadata)
+            phase0_prep.run_phase0(raw_metadata, mode=args.mode, limit=args.limit)
         elif args.phase == 1:
-            phase1_transcribe.run_phase1(raw_metadata, raw_transcripts)
+            phase1_transcribe.run_phase1(raw_metadata, raw_transcripts, limit=args.limit)
         elif args.phase == 2:
-            phase2_normalize.run_phase2(raw_transcripts, normalized_text)
+            phase2_normalize.run_phase2(raw_transcripts, normalized_text, limit=args.limit)
         elif args.phase == 3:
             import pandas as pd
             m_df = pd.read_csv(raw_metadata)

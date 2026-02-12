@@ -20,8 +20,14 @@ def run_phase5(input_csv, output_dir):
     
     # 1. Copy audio files
     for _, row in df.iterrows():
-        src_path = row["file_path"]
-        dest_path = os.path.join(audio_out_dir, os.path.basename(src_path))
+        # In HF mode, file_path is remote, local_path is the actual file.
+        src_path = row["local_path"] if "local_path" in row and os.path.exists(row["local_path"]) else row["file_path"]
+        
+        if not os.path.exists(src_path):
+            print(f"Warning: Audio file not found: {src_path}")
+            continue
+            
+        dest_path = os.path.join(audio_out_dir, os.path.basename(row["file_path"]))
         shutil.copy2(src_path, dest_path)
     
     # 2. Final metadata columns
