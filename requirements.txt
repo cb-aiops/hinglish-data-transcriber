@@ -1,0 +1,7 @@
+openai-whisper
+pandas
+pydantic
+pydantic
+python-dotenv
+pytest
+groq

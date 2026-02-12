@@ -1,0 +1,21 @@
+# Environment variables
+.env
+
+# Data and artifacts
+data/
+lexicon/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Audio/Whisper models
+*.wav
+models/
+
+# OS
+.DS_Store
+Thumbs.db
